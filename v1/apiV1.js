@@ -33,7 +33,7 @@ router.use(bodyParser.json());
 
 if (typeof web3 !== 'undefined') {
    web3 = new Web3(web3.currentProvider);
-} else { 
+} else {
    // connect to Ethereum RPC client running locally
    web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 };
@@ -42,28 +42,26 @@ if (typeof web3 !== 'undefined') {
 
 // get the balance of the Ehteruem ?address=
 router.get('/balance', function(req, res) {
-	var addr = req.query.address;
-	console.log(addr);
-	if (addr !== 'undefined') {
-		if (addr.substring(0,2) == '0x'){
-			res.json({
-				status: "success",
-				balance: web3.eth.getBalance(addr)
-			});
+   if (req.query.address) {
+      if (req.query.address.substring(0, 2) == '0x') {
+         res.json({
+            status: "success",
+            balance: web3.eth.getBalance(req.query.address)
+         });
 
-		} else {
-			res.json({
-				status: "failed",
-				message: "Please check the address"
-			});
-		}
+      } else {
+         res.json({
+            status: "failed",
+            message: "Please check the address"
+         });
+      }
 
-	} else {
-		res.json({
-			status: "failed",
-			message: "Cannot recognize this address"
-		});
-	};
+   } else {
+      res.json({
+         status: "failed",
+         message: "Cannot recognize this address"
+      });
+   };
 
    // web3 get the balance of the req address
 });
@@ -88,7 +86,7 @@ router.get('/history', function(req, res) {
 router.get('/send', function(req, res) {
 
    //web3 send the transaction
-   res.send('history');
+   res.send('transaction');
 });
 
 
@@ -104,4 +102,3 @@ router.get('*', function(req, res) {
 
 //>> Export 
 module.exports = router;
-
