@@ -1,0 +1,32 @@
+{
+  "name": "mozork",
+  "version": "0.0.1",
+  "description": "Ethereum RESTful server. ",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xhad/mozork.git"
+  },
+  "keywords": [
+    "ethereum",
+    "rest",
+    "node",
+    "express",
+    "web3"
+  ],
+  "author": "Chad Lynch",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xhad/mozork/issues"
+  },
+  "homepage": "https://github.com/xhad/mozork#readme",
+  "dependencies": {
+    "body-parser": "^1.14.2",
+    "express": "^4.13.4",
+    "morgan": "^1.6.1",
+    "web3": "^0.15.1"
+  }
+}
