@@ -40,7 +40,7 @@ if (typeof web3 !== 'undefined') {
 
 //>> Routes
 
-// get the balance of the Ehteruem ?address=
+// get the balance of the Etheruem ?address=
 router.get('/balance', function(req, res) {
    if (req.query.address) {
       if (req.query.address.substring(0, 2) == '0x') {
@@ -62,8 +62,6 @@ router.get('/balance', function(req, res) {
          message: "Cannot recognize this address"
       });
    };
-
-   // web3 get the balance of the req address
 });
 
 // Generate a new Ethereum Wallet
