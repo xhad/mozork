@@ -47,23 +47,22 @@ router.get('/balance', function(req, res) {
          res.json({
             status: "success",
             balance: web3.eth.getBalance(req.query.address)
+
          });
 
       } else {
          res.json({
-            status: "failed",
+            status: false,
             message: "Please check the address"
          });
       }
 
    } else {
       res.json({
-         status: "failed",
+         status: false,
          message: "Cannot recognize this address"
       });
    };
-
-   // web3 get the balance of the req address
 });
 
 // Generate a new Ethereum Wallet
@@ -83,18 +82,37 @@ router.get('/history', function(req, res) {
 });
 
 // Send a transaction
-router.get('/send', function(req, res) {
+router.get('/send', function(req, res, next) {
+   console.log(req.query.from);
+   console.log(req.query.to);
+   console.log(req.query.value);
+   if (req.query.from  && req.query.to && req.query.value) {
 
-   //web3 send the transaction
-   res.send('transaction');
+      res.json = ({
+         status: web3.eth.sendTransaction({
+         from: req.from,
+         to: req.to,
+         value: web3.toWei(1, "ether")})
+      });
+      res.json({
+         status: true,
+         message: value + ' was send from ' + req.from + ' to ' + req.to
+      });
+   } else {
+      res.json({
+         status: false,
+         message: 'Check the tranny.'
+      });
+   }
 });
+
 
 
 //>> Process all routes, return failed if route is bad
 router.get('*', function(req, res) {
    res.status = 404;
    res.json({
-      success: false,
+      status: false,
       message: "Mozork can\'t handle this"
    });
 });
