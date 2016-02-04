@@ -40,7 +40,7 @@ if (typeof web3 !== 'undefined') {
 
 //>> Routes
 
-// get the balance of the Ehteruem ?address=
+// get the balance of the Etheruem ?address=
 router.get('/balance', function(req, res) {
    if (req.query.address) {
       if (req.query.address.substring(0, 2) == '0x') {
