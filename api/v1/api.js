@@ -3,7 +3,7 @@
 ///>>> Written by Chad Lynch
 ///>>> Copyright, MIT. 2016
 ///>>> DO NOT EXPOSE TO INTERNET
-///>>> INTERNAL MICRO SERVICE ONLY
+///>>> INTERNAL MICRO SERVICE
 
 const express = require('express');
 const Web3 = require('web3');
@@ -18,7 +18,7 @@ const Promsie = require('bluebird');
 const Database = require('./lib/db');
 
 
-//>> API version check
+//>> API version
 
 router.use(function(req, res, next) {
    res._json = res.json;
@@ -44,8 +44,6 @@ router.use(morgan('combined'));
 router.use(bodyParser.urlencoded({
    extended: true
 }));
-
-
 router.use(bodyParser.json());
 
 //>> Redundant Sanitization 
@@ -124,18 +122,18 @@ router.get('/balance/:address', (req, res) => {
    };
 });
 
-//>> Auth Routes
+//>> Authed Routes
 
 // Send a transaction /ethtransaction
 // PARAMS 
 // HEADER {Content-Type: application/json}
 // BODY {userId: userId, key: key, secret: secret
-//       value: "amount_of_eth", from: "ETH_addr", 
+//       amount: "amount_of_eth", from: "ETH_addr", 
 //       to: "To_eth_addr", password: "sender_address_password"}
 router.post('/ethtransaction', (req, res, next) => {
    if (req.body.from &&
       req.body.to &&
-      req.body.value &&
+      req.body.amount &&
       req.body.password &&
       req.body.userId &&
       req.body.key &&
@@ -143,7 +141,7 @@ router.post('/ethtransaction', (req, res, next) => {
 
       let from = req.sanitize(req.body.from);
       let to = req.sanitize(req.body.to);
-      let value = req.sanitize(req.body.value);
+      let amount = req.sanitize(req.body.amount);
       let password = req.sanitize(req.body.password);
       let userId = req.sanitize(req.body.userId);
       let key = req.sanitize(req.body.key);
@@ -153,7 +151,7 @@ router.post('/ethtransaction', (req, res, next) => {
       //    status: web3.eth.sendTransaction({
       //       from: from,
       //       to: to,
-      //       value: web3.toWei(value, "ether"),
+      //       amount: web3.toWei(amount, "ether"),
       //       passphrase: password
       //    }, function(err, data) {
       //       if (err) return err;
@@ -164,13 +162,13 @@ router.post('/ethtransaction', (req, res, next) => {
       res.json({
          status: true,
          message: value + ' was send from ' + req.from + ' to ' + req.to
-      });
+      })
 
    } else {
       res.json({
          status: false,
          message: 'Check the values.'
-      });
+      })
    }
 });
 
@@ -182,11 +180,12 @@ router.post('/ethtransaction', (req, res, next) => {
 // '{"userId": "007", "password":"some_password"}' 
 //http://localhost:8765/api/v1/newaccount
 // manage accounts
-// PARAM userId      user_id of user  
-// PARAM password    password for Ethereum Wallet
-// Mongo collection users
+// PARAMS 
+// HEADER {Content-Type: application/json}
+// BODY {userId: userId}
+// COLLECTION users
 router.post('/newapiuser', (req, res, next) => {
-
+   if (req.body.userId) {
    let userId = req.sanitize(req.body.userId);
 
    auth.newApiUser(userId)
@@ -198,6 +197,7 @@ router.post('/newapiuser', (req, res, next) => {
             })
 
             next();
+
          } else {
             res.json({
                status: "fail",
@@ -207,12 +207,19 @@ router.post('/newapiuser', (req, res, next) => {
             next();
          }
       })
-})
+
+   } else {
+      res.json({
+         status: "fail",
+         message:"Did you send a userId?"
+      })
+   }
+});
 
 // PARAMS 
 // HEADER {Content-Type: application/json}
 // BODY {userId: userId, key: key, secret: secret}
-
+// COLLECTION users
 router.post('/rmapiuser', (req, res, next) => {
    if (req.body.userId && req.body.key && req.body.secret) {
 
@@ -233,7 +240,7 @@ router.post('/rmapiuser', (req, res, next) => {
                   message: "failed to remove API user"
                })
             }
-         });
+         })
 
    } else {
       res.json({
@@ -241,13 +248,13 @@ router.post('/rmapiuser', (req, res, next) => {
          message: "Did you send a userId, key and secret?"
       })
    }
-})
+});
 
 // User Authentication /checkapiuser
 // PARAMS 
 // HEADER {Content-Type: application/json}
 // BODY {userId: userId, key: key, secret: secret}
-// Mongo collection users
+// COLLECTION users
 router.post('/checkapiuser', (req, res, next) => {
    if (req.body.userId && req.body.key && req.body.secret) {
 
@@ -261,7 +268,7 @@ router.post('/checkapiuser', (req, res, next) => {
                res.send({ auth: true })
             else
                res.send({ auth: false })
-         });
+         })
 
    } else {
       res.json({
@@ -269,44 +276,43 @@ router.post('/checkapiuser', (req, res, next) => {
          message: "Did you send a UserId, Key and Secret?"
       })
    }
-})
+});
 
-// Create a new Ethereum Address /newethaddress
+// Create a new Ethereum account /account
 // PARAMS 
-// userId      from excahnge user_id
-// key         key token from mozork user key
-// secret      secret token from mozek user secret
-// Mongo collection accounts 
-router.post('/newethaddress', (req, res, next) => {
+// HEADER {Content-Type: application/json}
+// BODY {userId: userId, key: key, secret: secret}
+// COLLECTION accounts
+router.post('/newaccount', (req, res, next) => {
    if (req.body.userId && req.body.key && req.body.secret) {
 
       let userId = req.sanitize(req.body.userId);
       let key = req.sanitize(req.body.key);
       let secret = req.sanitize(req.body.secret);
       let password = bcrypt.hashSync(req.sanitize(req.body.password));
-      let address = web3.personal.newAccount(password);
+      let account = web3.personal.newAccount(password);
       let currency = 'ETH';
 
       auth.checkApiUser(userId, key, secret)
          .then((auth) => {
             if (auth === true) {
-               account.new(userId, password, address, currency)
+               account.new(userId, password, account, currency)
                   .then((data) => {
                      console.log(data);
                      if (data === false)
                         res.json({
                            status: "fail",
-                           message: "Address not created"
+                           message: "Account not created"
                         })
 
                      else
                         res.json({
                            status: "success",
                            userId: data.userId,
-                           address: data.address,
+                           account: data.account,
                            currency: currency
                         })
-                  });
+                  })
 
             } else {
                res.json({
@@ -322,34 +328,33 @@ router.post('/newethaddress', (req, res, next) => {
          please: "please check your values"
       })
    }
-})
+});
 
 // Unlock Ethereum Address /unlockethaddress
-// PARAMS
-// userId      from exchange user_id
-// key         key token from mozork user key
-// secret      secret token from mozek user secret   
-// address     Ethereum address from Mongo Accounts
-// password    Ethereum address password (hashed)
-// Mongo collection accounts
-router.post('/unlockethaddress', (req, res, next) => {
+// PARAMS 
+// HEADER {Content-Type: application/json}
+// BODY {userId: userId, key: key, secret: secret
+//       account: account, password: password}
+// COLLECTION accounts
+router.post('/unlockaccount', (req, res, next) => {
    if (req.body.userId && req.body.key && req.body.secret) {
 
       let userId = req.sanitize(req.body.userId);
       let key = req.sanitize(req.body.key);
       let secret = req.sanitize(req.body.secret);
-      let address = req.sanitize(req.body.address);
+      let account = req.sanitize(req.body.account);
       let password = req.sanitize(req.body.password);
 
       auth.checkApiUser(userId, key, secret)
          .then((auth) => {
             if (auth === true) {
                web3.personal
-                  .unlockAccount(address, password, 1000);
+                  .unlockAccount(account, password, 1000);
                res.json({
                   status: "success",
-                  message: "address unlocked"
+                  message: "account unlocked"
                })
+
             } else {
                res.json({
                   status: "fail",
@@ -357,40 +362,40 @@ router.post('/unlockethaddress', (req, res, next) => {
                })
             }
          })
+
    } else {
       res.json({
          status: "fail",
          please: "please check your values"
       })
    }
-})
+});
 
-// Lock Ethereum Address /lockethaddress
-// PARAMS
-// userId      from exchange user_id
-// key         key token from mozork user key
-// secret      secret token from mozek user secret   
-// address     Ethereum address from Mongo Accounts
-// password    Ethereum address password (hashed)
-// Mongo collection accounts
-router.post('/lockethaddress', (req, res, next) => {
+// Unlock Ethereum Address /unlockaccount
+// PARAMS 
+// HEADER {Content-Type: application/json}
+// BODY {userId: userId, key: key, secret: secret
+//       account: account, password: password}
+// COLLECTION accounts
+router.post('/lockaccount', (req, res, next) => {
    if (req.body.userId && req.body.key && req.body.secret) {
 
       let userId = req.sanitize(req.body.userId);
       let key = req.sanitize(req.body.key);
       let secret = req.sanitize(req.body.secret);
-      let address = req.sanitize(req.body.address);
+      let account = req.sanitize(req.body.account);
       let password = req.sanitize(req.body.password);
 
       auth.checkApiUser(userId, key, secret)
          .then((auth) => {
             if (auth === true) {
                web3.personal
-                  .lockAccount(address, password, 1000);
+                  .lockAccount(account, password, 1000);
                res.json({
                   status: "success",
-                  message: "address locked"
+                  message: "account locked"
                })
+
             } else {
                res.json({
                   status: "fail",
@@ -398,6 +403,7 @@ router.post('/lockethaddress', (req, res, next) => {
                })
             }
          })
+
    } else {
       res.json({
          status: "fail",
@@ -405,7 +411,7 @@ router.post('/lockethaddress', (req, res, next) => {
       })
    }
 
-})
+});
 
 
 //>> Process all routes, return failed if route is bad
@@ -414,7 +420,7 @@ router.get('*', function(req, res) {
    res.json({
       status: false,
       message: "This endpoint does not have a method"
-   });
+   })
 });
 
 
