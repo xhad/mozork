@@ -24,9 +24,15 @@
   },
   "homepage": "https://github.com/xhad/mozork#readme",
   "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
+    "bluebird": "^3.4.6",
     "body-parser": "^1.14.2",
+    "ethereumjs-accounts": "0.0.15",
     "express": "^4.13.4",
+    "express-sanitizer": "^1.0.1",
+    "mongoose": "^4.6.0",
     "morgan": "^1.6.1",
-    "web3": "^0.15.1"
+    "uuid-key-generator": "^0.3.2",
+    "web3": "^0.17.0-alpha"
   }
 }
