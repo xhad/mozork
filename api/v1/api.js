@@ -94,30 +94,30 @@ router.get('/getblock/:block', (req, res) => {
 });
 
 
-// get the balance of the Etheruem address
-router.get('/balance/:address', (req, res) => {
-   if (req.params.address) {
-      let addr = req.sanitize(req.params.address);
-      let bal = web3.eth.getBalance(addr);
+// get the balance of the Etheruem account
+router.get('/balance/:account', (req, res) => {
+   if (req.params.account) {
+      let account = req.sanitize(req.params.account);
 
-      if (addr.substring(0, 2) == '0x') {
+      if (account.substring(0, 2) == '0x') {
+         let balance = web3.eth.getBalance(account);
          res.json({
             status: "success",
-            balance: bal
+            balance: balance
 
          });
 
       } else {
          res.json({
             status: false,
-            message: "Please check the address"
+            message: "Please check the account"
          });
       }
 
    } else {
       res.json({
          status: false,
-         message: "Cannot recognize this address"
+         message: "Cannot recognize this account"
       });
    };
 });
@@ -234,6 +234,7 @@ router.post('/rmapiuser', (req, res, next) => {
                   status: "success",
                   message: "API user removed"
                })
+
             } else {
                res.json({
                   status: "fail",
