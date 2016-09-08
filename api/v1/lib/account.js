@@ -7,43 +7,54 @@ function Accounts() {
    this.auth = new Auth();
 };
 
-// creates a new address
-Accounts.prototype.new = function(userId, password, address, currency) {
+// creates a new account
+Accounts.prototype.new = function(userId, password, account, currency) {
    return new Promise((fulfill, reject) => {
-         let newAccount = new Account({
-            userId: userId,
-            password: password,
-            address: address,
-            currency: currency
-         });
 
-         newAccount.save((err, data) => {
-            if (data) fulfill({
-               userId: data.userId,
-               address: data.address
+         function save() {
+            var newAccount = new Account({
+               userId: userId,
+               password: password,
+               account: account,
+               currency: currency
             });
 
-            else reject(err);
-         });
+            newAccount.save((err, data) => {
+               if (data) fulfill({
+                  userId: data.userId,
+                  account: data.account
+               });
+
+               else reject(err);
+            });
+         }
+
+         Account.find({ userId: userId }, function(err, data) {
+            if (data[0]) fulfill({
+               userId: data[0].userId,
+               account: data[0].account,
+               message: "account already exists"
+            });
+
+            else {
+               save();
+            }
+         })
       })
       .catch((error) => {
          return false;
       })
 };
 
-// checks that a user has an address
-Accounts.prototype.get = function(userId, address) {
+// get's account and password from userId 
+Accounts.prototype.get = function(userId) {
    return new Promise((fulfill, reject) => {
-         var account = new Account({
-            userId: userId,
-            address: address
-         });
 
-         account.findOne({}).then((data) => {
+         Account.findOne({ userId: userId }).then((data) => {
             if (data)
                fulfill(data);
             else
-               reject();
+               reject(false);
          })
       })
       .catch((error) => {
@@ -53,10 +64,10 @@ Accounts.prototype.get = function(userId, address) {
 
 Accounts.prototype.send = function(userId, password, from, to, value) {
    return new Promise((fulfill, reject) => {
-      var account = new Account({
+      let account = new Account({
          userId: userId,
          password: password,
-         address: address
+         account: account
       });
 
       account.findOne().then((err, data) => {

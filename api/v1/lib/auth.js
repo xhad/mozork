@@ -5,21 +5,19 @@ const Promise = require('bluebird');
 
 function Auth() {};
 
-
 Auth.prototype.newApiUser = function(userId) {
    return new Promise((fulfill, reject) => {
          let keygen = new Key();
          let secgen = new Key(256, Key.BASE62);
-
          let newUser = new User({
             userId: userId,
             key: keygen.generateKey(),
             secret: secgen.generateKey()
-         });
+         })
 
-         user.save().then((data) => {
+         newUser.save().then((data) => {
             if (data)
-               fulfill(data);
+               fulfill(true);
             else
                reject();
          })
@@ -31,7 +29,6 @@ Auth.prototype.newApiUser = function(userId) {
 
 Auth.prototype.removeApiUser = function(userId, key, secret) {
    return new Promise((fulfill, reject) => {
-
          User.find({
                userId: userId,
                key: key,
@@ -42,7 +39,7 @@ Auth.prototype.removeApiUser = function(userId, key, secret) {
                   fulfill(true);
                else
                   reject();
-            });
+            })
       })
       .catch((error) => {
          return false;
@@ -51,25 +48,20 @@ Auth.prototype.removeApiUser = function(userId, key, secret) {
 
 Auth.prototype.checkApiUser = function(userId, key, secret) {
    return new Promise((fulfill, reject) => {
-
          User.findOne({
             userId: userId,
             key: key,
             secret: secret
          }, function(err, data) {
-            if (data && data.id && data.key && data.secret) {
+            if (data && data.id && data.key && data.secret) 
                fulfill(true);
-            } else {
+             else 
                reject(false);
-            }
          })
       })
       .catch((error) => {
          return false;
       })
 };
-
-
-
 
 module.exports = Auth;

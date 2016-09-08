@@ -29,8 +29,8 @@ router.use(function(req, res, next) {
 });
 
 //>> Instantiate Libraries
-const auth = new Auth();
-const account = new Accounts();
+var auth = new Auth();
+var accounts = new Accounts();
 
 //>> Mongo Database
 // https://docs.mongodb.com/manual/security/
@@ -171,25 +171,17 @@ router.post('/ethtransaction', (req, res, next) => {
    }
 });
 
-
-
-
-// Create new API User and Credentials
-// curl -H "Content-Type: application/json" -X POST -d 
-// '{"userId": "007", "password":"some_password"}' 
-// http://localhost:8765/api/v1/newaccount
-// manage accounts
+// Make a new API user /newapiuser
 // PARAMS 
 // HEADER {Content-Type: application/json}
 // BODY {userId: userId}
-// COLLECTION users
 router.post('/newapiuser', (req, res, next) => {
    if (req.body.userId) {
    let userId = req.sanitize(req.body.userId);
 
    auth.newApiUser(userId)
       .then((data) => {
-         if (data) {
+         if (data === true) {
             res.json({
                status: "success",
                message: "New API user created"
@@ -219,7 +211,6 @@ router.post('/newapiuser', (req, res, next) => {
 // PARAMS 
 // HEADER {Content-Type: application/json}
 // BODY {userId: userId, key: key, secret: secret}
-// COLLECTION users
 router.post('/rmapiuser', (req, res, next) => {
    if (req.body.userId && req.body.key && req.body.secret) {
 
@@ -255,7 +246,6 @@ router.post('/rmapiuser', (req, res, next) => {
 // PARAMS 
 // HEADER {Content-Type: application/json}
 // BODY {userId: userId, key: key, secret: secret}
-// COLLECTION users
 router.post('/checkapiuser', (req, res, next) => {
    if (req.body.userId && req.body.key && req.body.secret) {
 
@@ -279,11 +269,10 @@ router.post('/checkapiuser', (req, res, next) => {
    }
 });
 
-// Create a new Ethereum account /account
+// Create a new Ethereum account /newaccount
 // PARAMS 
 // HEADER {Content-Type: application/json}
 // BODY {userId: userId, key: key, secret: secret}
-// COLLECTION accounts
 router.post('/newaccount', (req, res, next) => {
    if (req.body.userId && req.body.key && req.body.secret) {
 
@@ -297,13 +286,12 @@ router.post('/newaccount', (req, res, next) => {
       auth.checkApiUser(userId, key, secret)
          .then((auth) => {
             if (auth === true) {
-               account.new(userId, password, account, currency)
+               accounts.new(userId, password, account, currency)
                   .then((data) => {
-                     console.log(data);
                      if (data === false)
                         res.json({
                            status: "fail",
-                           message: "Account not created"
+                           message: "Account not created. Username may already exist."
                         })
 
                      else
@@ -326,7 +314,46 @@ router.post('/newaccount', (req, res, next) => {
    } else {
       res.json({
          status: "fail",
-         please: "please check your values"
+         message: "please check your values"
+      })
+   }
+});
+
+// Get user account /getaccount
+// PARAMS 
+// HEADER {Content-Type: application/json}
+// BODY {userId: userId, key: key, secret: secret}
+router.post('/getaccount', (req, res, next) => {
+   if (req.body.userId && req.body.key && req.body.secret) {
+
+      let userId = req.sanitize(req.body.userId);
+      let key = req.sanitize(req.body.key);
+      let secret = req.sanitize(req.body.secret);
+
+      auth.checkApiUser(userId, key, secret)
+         .then((auth) =>{
+            if (auth === true) {
+               accounts.get(userId)
+               .then((data) => {
+                  res.json({
+                     status: "success",
+                     userId: data.userId,
+                     account: data.account
+                  })
+               })
+
+            } else {
+               res.json({
+                  status: "fail",
+                  message: "Authentication failed."
+               })
+            }
+         })
+
+   } else {
+      res.json({
+         status: "fail",
+         message: "please check your values"
       })
    }
 });
@@ -336,7 +363,6 @@ router.post('/newaccount', (req, res, next) => {
 // HEADER {Content-Type: application/json}
 // BODY {userId: userId, key: key, secret: secret
 //       account: account, password: password}
-// COLLECTION accounts
 router.post('/unlockaccount', (req, res, next) => {
    if (req.body.userId && req.body.key && req.body.secret) {
 
