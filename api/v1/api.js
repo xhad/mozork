@@ -1,9 +1,9 @@
 ///>>> MOZORK API V1
-///>>> Ethereum Go-Client API
-///>>> Written by Chad Lynch
-///>>> Copyright, MIT. 2016
-///>>> DO NOT EXPOSE TO INTERNET
-///>>> INTERNAL MICRO SERVICE
+// Ethereum Go-Client API
+// Written by Chad Lynch
+// Copyright, MIT. 2016
+// DO NOT EXPOSE TO INTERNET
+// INTERNAL MICRO SERVICE
 
 const express = require('express');
 const Web3 = require('web3');
@@ -19,7 +19,6 @@ const Database = require('./lib/db');
 
 
 //>> API version
-
 router.use(function(req, res, next) {
    res._json = res.json;
    res.json = function json(obj) {
@@ -34,7 +33,7 @@ const auth = new Auth();
 const account = new Accounts();
 
 //>> Mongo Database
-//>> https://docs.mongodb.com/manual/security/
+// https://docs.mongodb.com/manual/security/
 var db = new Database('test');
 
 //>> Use morgan to console log 
@@ -51,10 +50,10 @@ router.use(expressSanitizer([]));
 
 
 //>> Setup a connection to Etheruem Client with Web3
-//>> https://bounty.ethereum.org/ (Security First!)
-//>> geth --datadir=/to/data -rpc 
-//>> -rpccorsdomain "MOZORK vm IP" -rpcapi 
-//>> "web3, eth, db, net, personal"
+// https://bounty.ethereum.org/ (Security First!)
+// geth --datadir=/to/data -rpc 
+// -rpccorsdomain "MOZORK vm IP" -rpcapi 
+// "web3, eth, db, net, personal"
 
 if (typeof web3 !== 'undefined') {
    web3 = new Web3(web3.currentProvider);
@@ -175,10 +174,10 @@ router.post('/ethtransaction', (req, res, next) => {
 
 
 
-// Create a new API user
+// Create new API User and Credentials
 // curl -H "Content-Type: application/json" -X POST -d 
 // '{"userId": "007", "password":"some_password"}' 
-//http://localhost:8765/api/v1/newaccount
+// http://localhost:8765/api/v1/newaccount
 // manage accounts
 // PARAMS 
 // HEADER {Content-Type: application/json}
@@ -216,6 +215,7 @@ router.post('/newapiuser', (req, res, next) => {
    }
 });
 
+// Remove API User and Credentials
 // PARAMS 
 // HEADER {Content-Type: application/json}
 // BODY {userId: userId, key: key, secret: secret}
@@ -251,7 +251,7 @@ router.post('/rmapiuser', (req, res, next) => {
    }
 });
 
-// User Authentication /checkapiuser
+// API User Authentication /checkapiuser
 // PARAMS 
 // HEADER {Content-Type: application/json}
 // BODY {userId: userId, key: key, secret: secret}
