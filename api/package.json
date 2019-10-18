@@ -30,7 +30,7 @@
     "ethereumjs-accounts": "0.0.15",
     "express": "^4.13.4",
     "express-sanitizer": "^1.0.1",
-    "mongoose": "^4.6.0",
+    "mongoose": "^5.4.10",
     "morgan": "^1.6.1",
     "uuid-key-generator": "^0.3.2",
     "web3": "^0.17.0-alpha"
