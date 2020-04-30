@@ -4,7 +4,9 @@
   "description": "Ethereum RESTful server. ",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -33,6 +35,8 @@
     "mongoose": "^4.6.0",
     "morgan": "^1.6.1",
     "uuid-key-generator": "^0.3.2",
-    "web3": "^0.17.0-alpha"
-  }
+    "web3": "^0.17.0-alpha",
+    "snyk": "^1.316.1"
+  },
+  "snyk": true
 }
